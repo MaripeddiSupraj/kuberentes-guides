@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webhook-config
+  namespace: default
+data:
+  app.py: |
+    from flask import Flask, request, jsonify
+    import base64
+    import json
+    
+    app = Flask(__name__)
+    
+    @app.route('/validate', methods=['POST'])
+    def validate():
+        admission_review = request.get_json()
+        
+        # Extract the object being created/updated
+        obj = admission_review["request"]["object"]
+        
+        # Validation logic: require specific labels
+        labels = obj.get("metadata", {}).get("labels", {})
+        
+        if "app" not in labels:
+            return jsonify({
+                "apiVersion": "admission.k8s.io/v1",
+                "kind": "AdmissionResponse",
+                "response": {
+                    "uid": admission_review["request"]["uid"],
+                    "allowed": False,
+                    "status": {"message": "Missing required 'app' label"}
+                }
+            })
+        
+        return jsonify({
+            "apiVersion": "admission.k8s.io/v1",
+            "kind": "AdmissionResponse", 
+            "response": {
+                "uid": admission_review["request"]["uid"],
+                "allowed": True
+            }
+        })
+    
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0', port=8443, ssl_context='adhoc')
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: validating-webhook
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: validating-webhook
+  template:
+    metadata:
+      labels:
+        app: validating-webhook
+    spec:
+      containers:
+      - name: webhook
+        image: python:3.9-slim
+        command: ['sh', '-c', 'pip install flask pyopenssl && python /app/app.py']
+        ports:
+        - containerPort: 8443
+        volumeMounts:
+        - name: webhook-config
+          mountPath: /app
+      volumes:
+      - name: webhook-config
+        configMap:
+          name: webhook-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: validating-webhook
+  namespace: default
+spec:
+  selector:
+    app: validating-webhook
+  ports:
+  - port: 443
+    targetPort: 8443
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionWebhook
+metadata:
+  name: pod-label-validator
+webhooks:
+- name: validate.pods.example.com
+  clientConfig:
+    service:
+      name: validating-webhook
+      namespace: default
+      path: "/validate"
+  rules:
+  - operations: ["CREATE", "UPDATE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
