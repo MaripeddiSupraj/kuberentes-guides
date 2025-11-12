@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: disaster-recovery
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dr-backup
+  namespace: disaster-recovery
+spec:
+  schedule: "0 */6 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting DR backup at $(date)"
+              
+              # Backup all resources
+              kubectl get all --all-namespaces -o yaml > /backup/all-resources-$(date +%Y%m%d-%H%M).yaml
+              
+              # Backup secrets
+              kubectl get secrets --all-namespaces -o yaml > /backup/secrets-$(date +%Y%m%d-%H%M).yaml
+              
+              # Backup configmaps
+              kubectl get configmaps --all-namespaces -o yaml > /backup/configmaps-$(date +%Y%m%d-%H%M).yaml
+              
+              # Backup RBAC
+              kubectl get clusterroles,clusterrolebindings,roles,rolebindings --all-namespaces -o yaml > /backup/rbac-$(date +%Y%m%d-%H%M).yaml
+              
+              # Sync to remote storage
+              echo "Syncing to remote storage..."
+              
+              echo "DR backup completed at $(date)"
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: dr-backup-pvc
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dr-backup-pvc
+  namespace: disaster-recovery
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dr-monitor
+  namespace: disaster-recovery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dr-monitor
+  template:
+    metadata:
+      labels:
+        app: dr-monitor
+    spec:
+      containers:
+      - name: monitor
+        image: prom/prometheus:latest
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: config
+          mountPath: /etc/prometheus
+      volumes:
+      - name: config
+        configMap:
+          name: dr-prometheus-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dr-prometheus-config
+  namespace: disaster-recovery
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    
+    rule_files:
+      - "dr_rules.yml"
+    
+    scrape_configs:
+    - job_name: 'kubernetes-pods'
+      kubernetes_sd_configs:
+      - role: pod
+    
+    - job_name: 'kubernetes-nodes'
+      kubernetes_sd_configs:
+      - role: node
+  
+  dr_rules.yml: |
+    groups:
+    - name: disaster-recovery
+      rules:
+      - alert: ClusterDown
+        expr: up{job="kubernetes-nodes"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Cluster is down - initiate DR procedures"

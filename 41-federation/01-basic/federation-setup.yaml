@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-federation-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: federation-controller
+  namespace: kube-federation-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: federation-controller
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: federation-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: federation-controller
+subjects:
+- kind: ServiceAccount
+  name: federation-controller
+  namespace: kube-federation-system
+---
+apiVersion: core.kubefed.io/v1beta1
+kind: KubeFedCluster
+metadata:
+  name: cluster-1
+  namespace: kube-federation-system
+spec:
+  apiEndpoint: https://cluster-1.example.com
+  caBundle: LS0tLS1CRUdJTi...
+  secretRef:
+    name: cluster-1-secret
+---
+apiVersion: core.kubefed.io/v1beta1
+kind: KubeFedCluster
+metadata:
+  name: cluster-2
+  namespace: kube-federation-system
+spec:
+  apiEndpoint: https://cluster-2.example.com
+  caBundle: LS0tLS1CRUdJTi...
+  secretRef:
+    name: cluster-2-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-1-secret
+  namespace: kube-federation-system
+type: Opaque
+data:
+  token: ZXlKaGJHY2lPaUpTVXpJMU5pSXM...
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-2-secret
+  namespace: kube-federation-system
+type: Opaque
+data:
+  token: ZXlKaGJHY2lPaUpTVXpJMU5pSXM...
+---
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedDeployment
+metadata:
+  name: federated-nginx
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      replicas: 3
+      selector:
+        matchLabels:
+          app: nginx
+      template:
+        metadata:
+          labels:
+            app: nginx
+        spec:
+          containers:
+          - name: nginx
+            image: nginx:1.21
+            ports:
+            - containerPort: 80
+  placement:
+    clusters:
+    - name: cluster-1
+    - name: cluster-2
+  overrides:
+  - clusterName: cluster-1
+    clusterOverrides:
+    - path: "/spec/replicas"
+      value: 2
+  - clusterName: cluster-2
+    clusterOverrides:
+    - path: "/spec/replicas"
+      value: 1
+---
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedService
+metadata:
+  name: federated-nginx-service
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      selector:
+        app: nginx
+      ports:
+      - port: 80
+        targetPort: 80
+      type: LoadBalancer
+  placement:
+    clusters:
+    - name: cluster-1
+    - name: cluster-2

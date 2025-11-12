@@ -2,40 +2,28 @@
 
 Learn the fundamentals of Kubernetes Services for networking and service discovery.
 
-## What is a Service?
+## Examples
 
-A Service provides stable networking for Pods:
-- Stable IP address and DNS name
-- Load balancing across multiple Pods
-- Service discovery within the cluster
-- Decouples consumers from Pod locations
+- `clusterip-service.yaml` - Internal cluster service
+- `nodeport-service.yaml` - External access via node ports
+- `headless-service.yaml` - Direct pod access for StatefulSets
 
 ## Service Types
 
-1. **ClusterIP** (default) - Internal cluster access only
-2. **NodePort** - External access via node IP:port
-3. **LoadBalancer** - Cloud provider load balancer
-4. **ExternalName** - DNS CNAME mapping
+- **ClusterIP** - Internal cluster access (default)
+- **NodePort** - External access via node IP:port
+- **LoadBalancer** - Cloud provider load balancer
+- **ExternalName** - DNS CNAME mapping
 
-## Examples
-
-- `clusterip-service.yaml` - Internal service
-- `nodeport-service.yaml` - External access via node
-- `loadbalancer-service.yaml` - Cloud load balancer
-- `headless-service.yaml` - Direct Pod access
-
-## Exercises
+## Commands
 
 ```bash
-# Create ClusterIP service
+# Create service
 kubectl apply -f clusterip-service.yaml
 
-# Test service discovery
-kubectl run test --image=busybox:1.35 --rm -it -- nslookup my-service
+# Test connectivity
+kubectl run test --image=busybox:1.35 --rm -it -- wget -qO- service-name
 
-# Create NodePort service
-kubectl apply -f nodeport-service.yaml
-
-# Access via node IP
-curl <node-ip>:<node-port>
+# Check endpoints
+kubectl get endpoints
 ```
