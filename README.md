@@ -87,12 +87,28 @@ Each topic is organized into three difficulty levels:
 - [**48-debugging**](./48-debugging/) - Application debugging
 - [**49-performance-tuning**](./49-performance-tuning/) - Performance optimization
 
+## 📊 Repository Statistics
+
+- **50 Topics** - Complete Kubernetes coverage
+- **122 Files** - Working YAML configurations and documentation
+- **6,000+ Lines** - Production-ready code examples
+- **100% Coverage** - All essential Kubernetes concepts
+- **3 Difficulty Levels** - Basic, Intermediate, Advanced
+
+## ✨ Key Features
+
+- **Production-Ready** - All examples include security best practices
+- **Progressive Learning** - Structured path from basics to advanced
+- **Real-World Examples** - Practical configurations for enterprise use
+- **Complete Coverage** - Core workloads, networking, security, operations
+- **Modern Practices** - GitOps, service mesh, observability, compliance
+
 ## 🚀 Getting Started
 
-1. Start with [01-pods/01-basic](./01-pods/01-basic/) for absolute beginners
-2. Progress through each topic's basic level first
-3. Move to intermediate and advanced as you gain confidence
-4. Practice with the provided examples in each section
+1. **Beginners**: Start with [01-pods/01-basic](./01-pods/01-basic/)
+2. **Intermediate**: Follow the [LEARNING_PATH.md](./LEARNING_PATH.md)
+3. **Advanced**: Explore enterprise patterns in 03-advanced folders
+4. **Setup**: Run `./setup.sh` to verify your environment
 
 ## 📋 Prerequisites
 
@@ -104,14 +120,15 @@ Each topic is organized into three difficulty levels:
 
 ```bash
 # Clone this repository
-git clone <your-repo-url>
+git clone https://github.com/MaripeddiSupraj/kuberentes-guides.git
 cd kuberentes-guides
 
-# Verify kubectl access
-kubectl cluster-info
+# Run setup script
+./setup.sh
 
-# Start with basic pod examples
+# Start learning
 cd 01-pods/01-basic
+kubectl apply -f simple-pod.yaml
 ```
 
 Happy learning! 🎉
