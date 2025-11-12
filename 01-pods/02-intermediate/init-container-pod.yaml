@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-demo
+spec:
+  initContainers:
+  - name: setup
+    image: busybox:1.35
+    command: ['sh', '-c', 'echo "Setting up application..." && sleep 10 && echo "Setup complete!" > /shared/setup.txt']
+    volumeMounts:
+    - name: shared-data
+      mountPath: /shared
+  
+  - name: download-config
+    image: busybox:1.35
+    command: ['sh', '-c', 'echo "Downloading configuration..." && sleep 5 && echo "config=production" > /shared/config.txt']
+    volumeMounts:
+    - name: shared-data
+      mountPath: /shared
+  
+  containers:
+  - name: main-app
+    image: busybox:1.35
+    command: ['sh', '-c', 'echo "Main app starting..." && cat /shared/setup.txt && cat /shared/config.txt && sleep 3600']
+    volumeMounts:
+    - name: shared-data
+      mountPath: /shared
+  
+  volumes:
+  - name: shared-data
+    emptyDir: {}

@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: parallel-processor
+spec:
+  parallelism: 3
+  completions: 6
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: busybox:1.35
+        command: ['sh', '-c', 'echo "Worker $HOSTNAME processing..." && sleep 20 && echo "Worker $HOSTNAME done!"']
+      restartPolicy: Never

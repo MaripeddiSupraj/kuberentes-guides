@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scaled-app
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: scaled-app
+  template:
+    metadata:
+      labels:
+        app: scaled-app
+    spec:
+      containers:
+      - name: app
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi

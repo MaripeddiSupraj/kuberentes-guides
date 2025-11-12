@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  database_url: "postgresql://localhost:5432/mydb"
+  debug_mode: "true"
+  max_connections: "100"
+  app.properties: |
+    server.port=8080
+    server.host=0.0.0.0
+    logging.level=INFO
+    cache.enabled=true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-pod
+spec:
+  containers:
+  - name: app
+    image: nginx:1.21
+    env:
+    - name: DATABASE_URL
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: database_url
+    - name: DEBUG_MODE
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: debug_mode
+    volumeMounts:
+    - name: config-volume
+      mountPath: /etc/config
+  volumes:
+  - name: config-volume
+    configMap:
+      name: app-config
