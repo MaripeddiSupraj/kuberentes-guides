@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: high-performance-app
+  annotations:
+    scheduler.alpha.kubernetes.io/preferred-zone: "us-west-2a"
+spec:
+  priorityClassName: high-priority
+  nodeSelector:
+    node-type: high-performance
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/arch
+            operator: In
+            values: ["amd64"]
+          - key: node.kubernetes.io/instance-type
+            operator: In
+            values: ["c5.2xlarge", "c5.4xlarge"]
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values: ["high-performance-app"]
+          topologyKey: kubernetes.io/hostname
+  containers:
+  - name: app
+    image: nginx:1.21
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+        ephemeral-storage: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+        ephemeral-storage: 2Gi
+    env:
+    - name: GOMAXPROCS
+      valueFrom:
+        resourceFieldRef:
+          resource: limits.cpu
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: high-perf-storage
+      mountPath: /data
+    - name: tmp-storage
+      mountPath: /tmp
+  volumes:
+  - name: high-perf-storage
+    persistentVolumeClaim:
+      claimName: high-perf-pvc
+  - name: tmp-storage
+    emptyDir:
+      medium: Memory
+      sizeLimit: 1Gi
+  dnsPolicy: ClusterFirst
+  dnsConfig:
+    options:
+    - name: ndots
+      value: "1"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: high-perf-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: fast-ssd
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority
+value: 1000
+globalDefault: false
+description: "High priority class for performance-critical workloads"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: performance-config
+data:
+  nginx.conf: |
+    worker_processes auto;
+    worker_rlimit_nofile 65535;
+    
+    events {
+        worker_connections 4096;
+        use epoll;
+        multi_accept on;
+    }
+    
+    http {
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        keepalive_requests 1000;
+        
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_types text/plain text/css application/json application/javascript;
+        
+        server {
+            listen 80;
+            location / {
+                return 200 "High Performance Server";
+            }
+        }
+    }

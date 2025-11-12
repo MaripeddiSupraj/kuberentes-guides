@@ -1,0 +1,100 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etcd-backup
+  namespace: kube-system
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: etcd-backup
+            image: k8s.gcr.io/etcd:3.5.0-0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              ETCDCTL_API=3 etcdctl snapshot save /backup/etcd-snapshot-$(date +%Y%m%d-%H%M%S).db \
+                --endpoints=https://127.0.0.1:2379 \
+                --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+                --cert=/etc/kubernetes/pki/etcd/server.crt \
+                --key=/etc/kubernetes/pki/etcd/server.key
+              
+              # Keep only last 7 days of backups
+              find /backup -name "etcd-snapshot-*.db" -mtime +7 -delete
+            volumeMounts:
+            - name: etcd-certs
+              mountPath: /etc/kubernetes/pki/etcd
+              readOnly: true
+            - name: backup-storage
+              mountPath: /backup
+          volumes:
+          - name: etcd-certs
+            hostPath:
+              path: /etc/kubernetes/pki/etcd
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: backup-pvc
+          restartPolicy: OnFailure
+          hostNetwork: true
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-pvc
+  namespace: kube-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: velero-backup
+  namespace: velero
+spec:
+  schedule: "0 1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: velero-backup
+            image: velero/velero:v1.9.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              velero backup create daily-backup-$(date +%Y%m%d) \
+                --include-namespaces=default,production \
+                --exclude-resources=events,events.events.k8s.io \
+                --ttl=168h0m0s
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-script
+  namespace: kube-system
+data:
+  backup.sh: |
+    #!/bin/bash
+    
+    # Backup all cluster resources
+    kubectl get all --all-namespaces -o yaml > /backup/cluster-resources-$(date +%Y%m%d).yaml
+    
+    # Backup custom resources
+    kubectl get crd -o yaml > /backup/crds-$(date +%Y%m%d).yaml
+    
+    # Backup RBAC
+    kubectl get clusterroles,clusterrolebindings,roles,rolebindings --all-namespaces -o yaml > /backup/rbac-$(date +%Y%m%d).yaml
+    
+    # Backup secrets (base64 encoded)
+    kubectl get secrets --all-namespaces -o yaml > /backup/secrets-$(date +%Y%m%d).yaml
+    
+    echo "Backup completed at $(date)"

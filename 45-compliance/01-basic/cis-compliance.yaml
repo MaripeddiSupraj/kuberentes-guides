@@ -1,0 +1,152 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: compliance
+  labels:
+    compliance-framework: "cis"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: audit-policy
+  namespace: compliance
+data:
+  audit-policy.yaml: |
+    apiVersion: audit.k8s.io/v1
+    kind: Policy
+    rules:
+    - level: Metadata
+      namespaces: ["kube-system", "kube-public", "kube-node-lease"]
+      resources:
+      - group: ""
+        resources: ["secrets", "configmaps"]
+    - level: RequestResponse
+      resources:
+      - group: ""
+        resources: ["pods", "services"]
+      - group: "apps"
+        resources: ["deployments", "replicasets"]
+    - level: Request
+      users: ["system:serviceaccount:kube-system:default"]
+      verbs: ["get", "list", "watch"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cis-compliant-pod
+  namespace: compliance
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: app
+    image: nginx:1.21
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 1000
+      capabilities:
+        drop:
+        - ALL
+        add:
+        - NET_BIND_SERVICE
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+    - name: cache
+      mountPath: /var/cache/nginx
+    - name: run
+      mountPath: /var/run
+  volumes:
+  - name: tmp
+    emptyDir: {}
+  - name: cache
+    emptyDir: {}
+  - name: run
+    emptyDir: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: compliance-network-policy
+  namespace: compliance
+spec:
+  podSelector:
+    matchLabels:
+      compliance: "required"
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          compliance: "approved"
+    ports:
+    - protocol: TCP
+      port: 80
+  egress:
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: compliance-scanner
+  namespace: compliance
+automountServiceAccountToken: false
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: compliance-scan
+  namespace: compliance
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: compliance-scanner
+          containers:
+          - name: scanner
+            image: aquasec/kube-bench:latest
+            command: ["kube-bench", "run", "--targets", "node,policies,managedservices"]
+            volumeMounts:
+            - name: var-lib-etcd
+              mountPath: /var/lib/etcd
+              readOnly: true
+            - name: var-lib-kubelet
+              mountPath: /var/lib/kubelet
+              readOnly: true
+            - name: etc-kubernetes
+              mountPath: /etc/kubernetes
+              readOnly: true
+          volumes:
+          - name: var-lib-etcd
+            hostPath:
+              path: "/var/lib/etcd"
+          - name: var-lib-kubelet
+            hostPath:
+              path: "/var/lib/kubelet"
+          - name: etc-kubernetes
+            hostPath:
+              path: "/etc/kubernetes"
+          restartPolicy: OnFailure
+          hostPID: true
+          hostNetwork: true

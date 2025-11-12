@@ -1,0 +1,47 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- base-deployment.yaml
+
+commonLabels:
+  environment: development
+  team: platform
+
+namePrefix: dev-
+
+images:
+- name: nginx
+  newTag: 1.21-alpine
+
+configMapGenerator:
+- name: app-env
+  literals:
+  - ENV=development
+  - DEBUG=true
+  - LOG_LEVEL=debug
+
+secretGenerator:
+- name: app-secrets
+  literals:
+  - API_KEY=dev-api-key-123
+  - DB_PASSWORD=dev-password
+
+patchesStrategicMerge:
+- |-
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: webapp
+  spec:
+    replicas: 1
+    template:
+      spec:
+        containers:
+        - name: webapp
+          env:
+          - name: ENV
+            valueFrom:
+              configMapKeyRef:
+                name: app-env
+                key: ENV

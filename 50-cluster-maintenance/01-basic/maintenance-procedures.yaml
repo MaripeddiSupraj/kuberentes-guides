@@ -1,0 +1,154 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cluster-health-check
+  namespace: kube-system
+spec:
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: health-check
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "=== Cluster Health Check $(date) ==="
+              
+              # Check node status
+              echo "Node Status:"
+              kubectl get nodes
+              
+              # Check system pods
+              echo "System Pods:"
+              kubectl get pods -n kube-system --field-selector=status.phase!=Running
+              
+              # Check cluster info
+              echo "Cluster Info:"
+              kubectl cluster-info
+              
+              # Check resource usage
+              echo "Resource Usage:"
+              kubectl top nodes
+              
+              # Check for failed pods
+              echo "Failed Pods:"
+              kubectl get pods --all-namespaces --field-selector=status.phase=Failed
+              
+              echo "Health check completed"
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maintenance-scripts
+  namespace: kube-system
+data:
+  node-drain.sh: |
+    #!/bin/bash
+    NODE_NAME=$1
+    
+    if [ -z "$NODE_NAME" ]; then
+      echo "Usage: $0 <node-name>"
+      exit 1
+    fi
+    
+    echo "Draining node: $NODE_NAME"
+    
+    # Cordon the node
+    kubectl cordon $NODE_NAME
+    
+    # Drain the node
+    kubectl drain $NODE_NAME --ignore-daemonsets --delete-emptydir-data --force
+    
+    echo "Node $NODE_NAME drained successfully"
+    echo "Perform maintenance and then run: kubectl uncordon $NODE_NAME"
+  
+  upgrade-check.sh: |
+    #!/bin/bash
+    
+    echo "=== Pre-upgrade Checks ==="
+    
+    # Check cluster version
+    echo "Current cluster version:"
+    kubectl version --short
+    
+    # Check node readiness
+    echo "Node status:"
+    kubectl get nodes
+    
+    # Check system pod health
+    echo "System pods status:"
+    kubectl get pods -n kube-system
+    
+    # Check for pending pods
+    echo "Pending pods:"
+    kubectl get pods --all-namespaces --field-selector=status.phase=Pending
+    
+    # Check etcd health
+    echo "etcd health:"
+    kubectl get componentstatuses
+    
+    # Check resource usage
+    echo "Resource usage:"
+    kubectl top nodes
+    
+    echo "Pre-upgrade checks completed"
+  
+  post-upgrade.sh: |
+    #!/bin/bash
+    
+    echo "=== Post-upgrade Verification ==="
+    
+    # Verify cluster version
+    echo "Cluster version after upgrade:"
+    kubectl version --short
+    
+    # Check all nodes are ready
+    echo "Verifying all nodes are ready:"
+    kubectl get nodes
+    
+    # Check system pods
+    echo "Verifying system pods:"
+    kubectl get pods -n kube-system
+    
+    # Run smoke tests
+    echo "Running smoke tests:"
+    kubectl run test-pod --image=busybox:1.35 --rm -it --restart=Never -- echo "Smoke test passed"
+    
+    # Check DNS resolution
+    echo "Testing DNS resolution:"
+    kubectl run dns-test --image=busybox:1.35 --rm -it --restart=Never -- nslookup kubernetes.default
+    
+    echo "Post-upgrade verification completed"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-dashboard
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maintenance-dashboard
+  template:
+    metadata:
+      labels:
+        app: maintenance-dashboard
+    spec:
+      containers:
+      - name: dashboard
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: maintenance-scripts
+          mountPath: /usr/share/nginx/html/scripts
+      volumes:
+      - name: maintenance-scripts
+        configMap:
+          name: maintenance-scripts
