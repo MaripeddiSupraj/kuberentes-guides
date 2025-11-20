@@ -23,29 +23,29 @@ This track builds on the beginner concepts and introduces more complex topics.
 ## Advanced Track
 This track covers advanced topics for experienced users.
 
-1. **[25-rbac/01-basic](./25-rbac/01-basic/)** - Security and Permissions: Role-Based Access Control.
-2. **[30-custom-resources/01-basic](./30-custom-resources/01-basic/)** - Extending Kubernetes: Creating custom resources (CRDs).
-3. **[31-operators/01-basic](./31-operators/01-basic/)** - Custom Controllers: Building custom controllers (Operators).
-4. **[32-helm/01-basic](./32-helm/01-basic/)** - Package Management: Using Helm to manage Kubernetes applications.
-5. **[34-monitoring/01-basic](./34-monitoring/01-basic/)** - Observability: Monitoring and logging.
+1. **[24-rbac/01-basic](./24-rbac/01-basic/)** - Security and Permissions: Role-Based Access Control.
+2. **[29-custom-resources/01-basic](./29-custom-resources/01-basic/)** - Extending Kubernetes: Creating custom resources (CRDs).
+3. **[30-operators/01-basic](./30-operators/01-basic/)** - Custom Controllers: Building custom controllers (Operators).
+4. **[31-helm/01-basic](./31-helm/01-basic/)** - Package Management: Using Helm to manage Kubernetes applications.
+5. **[35-monitoring/01-basic](./35-monitoring/01-basic/)** - Observability: Monitoring and logging.
 
 ## Specialized Tracks
 These tracks focus on specific areas of Kubernetes.
 
 ### Operations Track
-- [38-backup-restore](./38-backup-restore/)
-- [47-troubleshooting](./47-troubleshooting/)
-- [50-cluster-maintenance](./50-cluster-maintenance/)
+- [39-backup-restore](./39-backup-restore/)
+- [46-troubleshooting](./46-troubleshooting/)
+- [49-cluster-maintenance](./49-cluster-maintenance/)
 
 ### Security Track
-- [24-pod-security-standards](./24-pod-security-standards/)
-- [28-network-security](./28-network-security/)
-- [44-security-scanning](./44-security-scanning/)
+- [23-pod-security-standards](./23-pod-security-standards/)
+- [27-network-security](./27-network-security/)
+- [43-security-scanning](./43-security-scanning/)
 
 ### DevOps Track
-- [42-gitops](./42-gitops/)
-- [43-ci-cd](./43-ci-cd/)
-- [33-kustomize](./33-kustomize/)
+- [33-gitops](./33-gitops/)
+- [34-ci-cd](./34-ci-cd/)
+- [32-kustomize](./32-kustomize/)
 
 ## Quick Commands Reference
 

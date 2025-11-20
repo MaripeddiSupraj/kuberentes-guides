@@ -46,46 +46,45 @@ Each topic is organized into three difficulty levels:
 - [**22-pod-disruption-budgets**](./22-pod-disruption-budgets/) - Availability guarantees
 
 ### Security
-- [**23-pod-security-policies**](./23-pod-security-policies/) - Pod security controls (deprecated)
-- [**24-pod-security-standards**](./24-pod-security-standards/) - Modern pod security
-- [**25-rbac**](./25-rbac/) - Role-based access control
-- [**26-service-accounts**](./26-service-accounts/) - Pod identity
-- [**27-cluster-roles**](./27-cluster-roles/) - Cluster-wide permissions
-- [**28-network-security**](./28-network-security/) - Network-level security
-- [**29-admission-controllers**](./29-admission-controllers/) - Request validation and mutation
+- [**23-pod-security-standards**](./23-pod-security-standards/) - Modern pod security
+- [**24-rbac**](./24-rbac/) - Role-based access control
+- [**25-service-accounts**](./25-service-accounts/) - Pod identity
+- [**26-cluster-roles**](./26-cluster-roles/) - Cluster-wide permissions
+- [**27-network-security**](./27-network-security/) - Network-level security
+- [**28-admission-controllers**](./28-admission-controllers/) - Request validation and mutation
 
 ### Extensibility
-- [**30-custom-resources**](./30-custom-resources/) - Extending Kubernetes API
-- [**31-operators**](./31-operators/) - Custom controllers and operators
+- [**29-custom-resources**](./29-custom-resources/) - Extending Kubernetes API
+- [**30-operators**](./30-operators/) - Custom controllers and operators
 
 ### Package Management & GitOps
-- [**32-helm**](./32-helm/) - Package management
-- [**33-kustomize**](./33-kustomize/) - Configuration management
-- [**42-gitops**](./42-gitops/) - Git-based deployments
-- [**43-ci-cd**](./43-ci-cd/) - Continuous integration and deployment
+- [**31-helm**](./31-helm/) - Package management
+- [**32-kustomize**](./32-kustomize/) - Configuration management
+- [**33-gitops**](./33-gitops/) - Git-based deployments
+- [**34-ci-cd**](./34-ci-cd/) - Continuous integration and deployment
 
 ### Observability
-- [**34-monitoring**](./34-monitoring/) - Metrics and monitoring
-- [**35-logging**](./35-logging/) - Log aggregation and analysis
-- [**36-tracing**](./36-tracing/) - Distributed tracing
-- [**37-alerting**](./37-alerting/) - Alert management
+- [**35-monitoring**](./35-monitoring/) - Metrics and monitoring
+- [**36-logging**](./36-logging/) - Log aggregation and analysis
+- [**37-tracing**](./37-tracing/) - Distributed tracing
+- [**38-alerting**](./38-alerting/) - Alert management
 
 ### Operations & Maintenance
-- [**38-backup-restore**](./38-backup-restore/) - Data protection
-- [**39-disaster-recovery**](./39-disaster-recovery/) - Business continuity
-- [**40-multi-cluster**](./40-multi-cluster/) - Multi-cluster management
-- [**41-federation**](./41-federation/) - Cluster federation
-- [**50-cluster-maintenance**](./50-cluster-maintenance/) - Cluster lifecycle
+- [**39-backup-restore**](./39-backup-restore/) - Data protection
+- [**40-disaster-recovery**](./40-disaster-recovery/) - Business continuity
+- [**41-multi-cluster**](./41-multi-cluster/) - Multi-cluster management
+- [**42-federation**](./42-federation/) - Cluster federation
+- [**49-cluster-maintenance**](./49-cluster-maintenance/) - Cluster lifecycle
 
 ### Security & Compliance
-- [**44-security-scanning**](./44-security-scanning/) - Vulnerability scanning
-- [**45-compliance**](./45-compliance/) - Compliance frameworks
+- [**43-security-scanning**](./43-security-scanning/) - Vulnerability scanning
+- [**44-compliance**](./44-compliance/) - Compliance frameworks
 
 ### Optimization & Troubleshooting
-- [**46-cost-optimization**](./46-cost-optimization/) - Resource cost management
-- [**47-troubleshooting**](./47-troubleshooting/) - Problem diagnosis
-- [**48-debugging**](./48-debugging/) - Application debugging
-- [**49-performance-tuning**](./49-performance-tuning/) - Performance optimization
+- [**45-cost-optimization**](./45-cost-optimization/) - Resource cost management
+- [**46-troubleshooting**](./46-troubleshooting/) - Problem diagnosis
+- [**47-debugging**](./47-debugging/) - Application debugging
+- [**48-performance-tuning**](./48-performance-tuning/) - Performance optimization
 
 ## 📊 Repository Statistics
 
