@@ -63,3 +63,24 @@ kubectl logs <pod-name>            # View pod logs
 kubectl exec -it <pod-name> -- bash # Execute commands in pod
 kubectl delete pod <pod-name>       # Delete a pod
 ```
+
+## 🔧 Troubleshooting Common Issues
+
+### Pod Stuck in "Pending"
+- **Cause**: Insufficient resources (CPU/Memory) or no nodes available.
+- **Fix**: Check events with `kubectl describe pod <pod-name>`.
+
+### Pod in "CrashLoopBackOff"
+- **Cause**: Application crashing or exiting immediately.
+- **Fix**: Check logs with `kubectl logs <pod-name>`.
+
+### "ImagePullBackOff"
+- **Cause**: Incorrect image name or authentication issue.
+- **Fix**: Verify image name and tags in the YAML file.
+
+## 💡 Best Practices
+
+1. **Always use Labels**: Labels are essential for organizing and selecting objects.
+2. **Define Resource Requests/Limits**: Help the scheduler make better decisions (covered in later modules).
+3. **Use Descriptive Names**: Avoid generic names like `pod-1`; use `nginx-web-server`.
+4. **Don't use bare Pods in Production**: Use Deployments or StatefulSets for reliability (covered in Module 03).
