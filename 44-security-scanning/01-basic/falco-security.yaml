@@ -102,7 +102,7 @@ spec:
       - name: falco
         image: falcosecurity/falco:0.32.0
         securityContext:
-          privileged: true
+          privileged: true # WARNING: Running a privileged container is a security risk.
         args: ["/usr/bin/falco", "--cri", "/run/containerd/containerd.sock", "-K", "/var/run/secrets/kubernetes.io/serviceaccount/token", "-k", "https://kubernetes.default", "-pk"]
         volumeMounts:
         - name: dev-fs
