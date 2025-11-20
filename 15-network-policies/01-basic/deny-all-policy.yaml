@@ -66,4 +66,4 @@ spec:
         image: postgres:13
         env:
         - name: POSTGRES_PASSWORD
-          value: password
+          value: password # WARNING: Hardcoding passwords is not recommended in production. Consider using a Secret.

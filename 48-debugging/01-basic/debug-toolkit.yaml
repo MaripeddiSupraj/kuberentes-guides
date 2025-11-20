@@ -9,7 +9,7 @@ spec:
     command: ['sleep', '3600']
     securityContext:
       capabilities:
-        add: ["NET_ADMIN", "SYS_PTRACE"]
+        add: ["NET_ADMIN", "SYS_PTRACE"] # WARNING: This gives the container elevated privileges.
     volumeMounts:
     - name: proc
       mountPath: /host/proc
@@ -24,8 +24,8 @@ spec:
   - name: sys
     hostPath:
       path: /sys
-  hostNetwork: true
-  hostPID: true
+  hostNetwork: true # WARNING: This gives the container access to the host's network stack.
+  hostPID: true # WARNING: This gives the container access to the host's process ID namespace.
 ---
 apiVersion: v1
 kind: ConfigMap

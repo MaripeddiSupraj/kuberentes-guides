@@ -12,10 +12,10 @@ A Pod is the smallest deployable unit in Kubernetes that can hold one or more co
 
 ## Examples in this Section
 
-1. **simple-pod.yaml** - Your first Pod with a single container
-2. **pod-with-labels.yaml** - Adding labels and annotations
-3. **pod-with-env.yaml** - Environment variables
-4. **pod-commands.yaml** - Custom commands and arguments
+1. **simple-pod.yaml**: A minimal Pod manifest that demonstrates the basic structure of a Pod with a single container.
+2. **pod-with-labels.yaml**: Shows how to add labels and annotations to a Pod for organization and filtering.
+3. **pod-with-env.yaml**: Demonstrates how to inject environment variables into a container within a Pod.
+4. **pod-commands.yaml**: Explains how to specify custom commands and arguments for a container's entrypoint.
 
 ## Hands-on Exercises
 

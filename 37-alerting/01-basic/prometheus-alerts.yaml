@@ -94,7 +94,7 @@ data:
       - to: 'oncall@example.com'
         subject: 'CRITICAL: {{ .GroupLabels.alertname }}'
       slack_configs:
-      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK' # Replace with your Slack webhook URL
         channel: '#alerts'
         title: 'Critical Alert'
         text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'

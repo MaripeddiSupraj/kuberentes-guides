@@ -11,11 +11,11 @@ data:
     - name: cluster-east
       cluster:
         server: https://cluster-east.example.com
-        certificate-authority-data: LS0tLS1CRUdJTi...
+        certificate-authority-data: LS0tLS1CRUdJTi... # Placeholder for base64-encoded certificate authority data
     users:
     - name: cluster-east-user
       user:
-        token: eyJhbGciOiJSUzI1NiIs...
+        token: eyJhbGciOiJSUzI1NiIs... # Placeholder for a user token
     contexts:
     - name: cluster-east-context
       context:
@@ -30,11 +30,11 @@ data:
     - name: cluster-west
       cluster:
         server: https://cluster-west.example.com
-        certificate-authority-data: LS0tLS1CRUdJTi...
+        certificate-authority-data: LS0tLS1CRUdJTi... # Placeholder for base64-encoded certificate authority data
     users:
     - name: cluster-west-user
       user:
-        token: eyJhbGciOiJSUzI1NiIs...
+        token: eyJhbGciOiJSUzI1NiIs... # Placeholder for a user token
     contexts:
     - name: cluster-west-context
       context:

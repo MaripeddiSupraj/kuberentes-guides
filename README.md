@@ -90,8 +90,8 @@ Each topic is organized into three difficulty levels:
 ## 📊 Repository Statistics
 
 - **50 Topics** - Complete Kubernetes coverage
-- **122 Files** - Working YAML configurations and documentation
-- **6,000+ Lines** - Production-ready code examples
+- **123 Files** - Working YAML configurations and documentation
+- **5,900+ Lines** - Production-ready code examples
 - **100% Coverage** - All essential Kubernetes concepts
 - **3 Difficulty Levels** - Basic, Intermediate, Advanced
 
@@ -120,8 +120,8 @@ Each topic is organized into three difficulty levels:
 
 ```bash
 # Clone this repository
-git clone https://github.com/MaripeddiSupraj/kuberentes-guides.git
-cd kuberentes-guides
+git clone https://github.com/MaripeddiSupraj/kubernetes-guides.git
+cd kubernetes-guides
 
 # Run setup script
 ./setup.sh

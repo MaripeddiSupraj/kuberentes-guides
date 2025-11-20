@@ -10,7 +10,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: manual
   hostPath:
-    path: /tmp/data
+    path: /tmp/data # WARNING: hostPath is not recommended for production use. It is used here for demonstration purposes only.
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

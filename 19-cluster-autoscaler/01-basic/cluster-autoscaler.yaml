@@ -87,7 +87,7 @@ spec:
         - ./cluster-autoscaler
         - --v=4
         - --stderrthreshold=info
-        - --cloud-provider=aws
+        - --cloud-provider=aws # This is an example for AWS. You will need to change this for your cloud provider.
         - --skip-nodes-with-local-storage=false
         - --expander=least-waste
         - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/my-cluster

@@ -73,8 +73,8 @@ metadata:
   namespace: secure-app
 type: kubernetes.io/tls
 data:
-  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...
-  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0t...
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t... # Placeholder for a base64-encoded TLS certificate
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0t... # Placeholder for a base64-encoded TLS private key
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

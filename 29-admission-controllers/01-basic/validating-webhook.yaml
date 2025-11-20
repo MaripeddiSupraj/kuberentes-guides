@@ -96,6 +96,7 @@ webhooks:
       name: validating-webhook
       namespace: default
       path: "/validate"
+    # In a production environment, you would need to provide a caBundle to secure the communication between the API server and the webhook.
   rules:
   - operations: ["CREATE", "UPDATE"]
     apiGroups: [""]

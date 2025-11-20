@@ -20,7 +20,7 @@ spec:
               echo "Backup completed at $(date)"
             env:
             - name: PGPASSWORD
-              value: password
+              value: password # WARNING: Hardcoding passwords is not recommended in production. Consider using a Secret.
             volumeMounts:
             - name: backup-storage
               mountPath: /backup
