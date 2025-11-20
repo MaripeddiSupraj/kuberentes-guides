@@ -80,3 +80,6 @@ spec:
   size: medium
   version: "13"
   backup: true
+# This is an example of a Custom Resource.
+# A custom controller (Operator) would be needed to watch for this resource and take action.
+# The operator logic is not included in this example.
