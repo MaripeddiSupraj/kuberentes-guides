@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sidecar-logging-pod
+spec:
+  containers:
+  - name: main-app
+    image: nginx
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /var/log/nginx
+  - name: sidecar-container
+    image: busybox
+    command: ["/bin/sh", "-c", "tail -f /logs/access.log"]
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /logs
+  volumes:
+  - name: shared-logs
+    emptyDir: {}
